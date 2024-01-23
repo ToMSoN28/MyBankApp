@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account</title>
+</head>
+<body>
+
+    <h1>Welcome {{ name }} to Your Account</h1>
+
+    <div>
+        <p>Your account Number:<strong> {{ account_number }}</strong></p>
+        <p>Your balance:<strong> {{ balance }}</strong></p>
+    </div>
+
+    <div>
+        <button onclick="location.href='/transaction'">Send Money</button>
+        <button id="showSecretInfo" onclick="location.href='/secret-info'">Secret Info</button>
+        <button onclick="location.href='/change-password'">Change Password</button>
+        <button onclick="location.href='/logout'">Logout</button>
+    </div>
+
+    <table border="1">
+        <caption><h2>Transaction History</h2></caption>
+        <thead>
+            <tr>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Title</th>
+                <th>From Name</th>
+                <th>From Account Number</th>
+                <th>To Name</th>
+                <th>To Account Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td><h3>{{ transaction.amount }}</h3></td>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.title }}</td>
+                    <td>{{ transaction.from_name }}</td>
+                    <td>{{ transaction.from_account_number }}</td>
+                    <td>{{ transaction.to_name }}</td>
+                    <td>{{ transaction.to_account_number }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+</body>
+</html>
