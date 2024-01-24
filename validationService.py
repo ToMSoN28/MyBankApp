@@ -6,17 +6,10 @@ import bleach
 class ValidationService:
 
     def sanitize_input(self, input_str):
-        """
-        Funkcja do oczyszczania danych wejściowych przed atakami XSS.
-        """
         cleaned_input = bleach.clean(input_str, tags=[], attributes={}, strip=True)
         return cleaned_input
 
     def prevent_sql_injection(self, input_str):
-        """
-        Funkcja do zapobiegania atakom SQL Injection.
-        """
-        # Sprawdź, czy input_str zawiera tylko dozwolone znaki
         if re.match(r'^[\w\s.,!?@#&()\[\]{}%\-_+=*<>:;"\'+/|\\]*$', input_str):
             return True
         else:
@@ -27,13 +20,10 @@ class ValidationService:
             liczba = int(client_number)
 
             if len(client_number) == 8:
-                # print(f'String "{client_number}" można zrzutować na int i składa się z 8 znaków.')
                 return True
             else:
-                # print(f'String "{client_number}" można zrzutować na int, ale nie składa się z 8 znaków.')
                 return False
         except ValueError:
-            # print(f'String "{client_number}" nie można zrzutować na int.')
             return False
 
     def password_char_input_valid(self, single_char):

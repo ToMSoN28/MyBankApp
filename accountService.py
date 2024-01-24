@@ -25,7 +25,6 @@ class AccountService:
         Session = sessionmaker(bind=engine)
         self.session = Session()
         self.user = self.session.query(User).filter(User.client_number == client_number).first()
-        # self.password_set_number = set_number
         pass
 
     def change_password(self, password, new_password, new_password_confirmation):
@@ -72,8 +71,6 @@ class AccountService:
     def verify_password_char(self, password_char):
         if self.user:
             password_hash_sets = json.loads(self.user.password_char_hash)
-            # print(password_hash_sets)
-            # print(self.password_set_number)
             password_hash_set = password_hash_sets[self.password_set_number]
             verified = self.password_fun.verify_password(password_char, password_hash_set)
             if verified:

@@ -1,9 +1,10 @@
 import time
-from random import random
 
-from sessionModels import BlockedUser, SessionInfo
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from sessionModels import BlockedUser, SessionInfo
+
 
 class SessionService:
     def __init__(self):

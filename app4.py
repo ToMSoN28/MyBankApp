@@ -1,20 +1,15 @@
-import json
 import os
 import random
 import secrets
+import time
 from datetime import timedelta
 
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, render_template, request, redirect, url_for, session
-import time
-from flask_session import Session
-from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
+from flask import Flask, render_template, request, redirect, url_for, session
 
 from accountService import AccountService
-from validationService import ValidationService
 from sessionService import SessionService
-from sessionClass import SessionClass
+from validationService import ValidationService
 
 load_dotenv()
 app = Flask(__name__)
@@ -24,11 +19,9 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Strict'
 
 blocking_time = 120
 # max_inactivity_time = 60  # Time in seconds (3 min) = 180
-# blocked_users = {}
-# logged_in_users = {}
-# session_info = {}
 
-routes = ['/login', '/password', '/logout', '/my-account', '/transaction', '/confirm-transaction', '/secret-info', '/change-password']
+routes = ['/login', '/password', '/logout', '/my-account', '/transaction', '/confirm-transaction', '/secret-info',
+          '/change-password']
 
 valid = ValidationService()
 sessionService = SessionService()
@@ -56,6 +49,7 @@ def login_user_in_session(client_number):
         sessionService.add_client_to_session(unique_string, client_number)
         return 0
 
+
 def change_session_id():
     session_id = session.get('session_id')
     while True:
@@ -79,7 +73,7 @@ def session_set(session_id):
         sessionService.set_set_to_session(session_id, random.randint(0, 9))
     return True
 
-# Middleware do sprawdzania blokad
+
 @app.before_request
 def before_every_request():
     sessionService.logout_inactive_users()
@@ -111,7 +105,6 @@ def before_every_request():
                                        error=f'User {client_number} is blocked for {int(time_block - time.time())} s')
 
 
-# Strona logowania - wprowadzenie identyfikatora klienta
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -142,7 +135,6 @@ def login():
     return render_template('login.html')
 
 
-# Strona logowania - wprowadzenie hasła
 @app.route('/password', methods=['GET', 'POST'])
 def password():
     session_id = session.get('session_id')
@@ -166,7 +158,8 @@ def password():
 
             if accountService.verify_password_char(password):
                 sessionService.update_time_in_client(client_number, time.time())
-                sessionService.set_set_to_session(session_id, set_new_session_set(set_char))  # new set of password char chosen
+                sessionService.set_set_to_session(session_id,
+                                                  set_new_session_set(set_char))  # new set of password char chosen
                 sessionService.change_is_login_in_session(session_id, True)
                 return redirect(url_for('my_account'))
 
@@ -247,7 +240,6 @@ def transaction():
             error += "Incorrect name. "
         if accountService.user.account_number == int(to_account_number):
             error += 'You can not send money yourself. '
-        # print(type(accountService.user.account_number), type(to_account_number))
         if error != "":
             return render_template('transaction.html', error=error)
         transaction = {
@@ -323,20 +315,19 @@ def change_password():
         actual = request.form.get('password')
         new = request.form.get('new_password')
         confirm = request.form.get('confirm_password')
-        print(valid.password_valid(actual), valid.password_valid(new), valid.password_valid(confirm))
         if not valid.password_valid(actual) or not valid.password_valid(new) or not valid.password_valid(confirm):
             return render_template('changePassword.html',
-                                       error='Server error, try again')
+                                   error='Server error, try again')
         accountService = AccountService(client_number)
         tmp = accountService.change_password(actual, new, confirm)
         if tmp == -2:
             return render_template('changePassword.html',
-                                       error='The new password is different from the confirmation')
+                                   error='The new password is different from the confirmation')
         elif tmp == -3:
             return render_template('changePassword.html', error='The new password is the same as the old one')
         elif tmp == -1:
             return render_template('changePassword.html',
-                                       error='The new password is week, try with stronger password')
+                                   error='The new password is week, try with stronger password')
         elif tmp == 0:
             return render_template('changePassword.html', error='Incorrect actual password')
         elif tmp == 1:
@@ -344,6 +335,7 @@ def change_password():
 
     sessionService.update_time_in_client(client_number, time.time())
     return render_template('changePassword.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

@@ -1,10 +1,10 @@
 import math
+import os
 import random
 import re
 import time
 
 from passlib.hash import argon2
-import os, json
 
 
 class PasswordAlgorithm:
@@ -28,11 +28,11 @@ class PasswordAlgorithm:
         passwd_salt = os.urandom(16).hex()
         start = time.time()
         passwd_hash = argon2.using(rounds=32, salt=passwd_salt.encode()).hash(passwd)
-        print(time.time()-start)
-        print(passwd_salt, passwd_hash)
+        # print(time.time()-start)
+        # print(passwd_salt, passwd_hash)
 
         passwd_char_table = self.generate_combination(passwd_len)
-        print(passwd_char_table)
+        # print(passwd_char_table)
         passwd_char_hash = []
         for j, char_table in enumerate(passwd_char_table):
             tmp = ""
@@ -45,24 +45,23 @@ class PasswordAlgorithm:
             passwd_char_hash.append(hash)
             # print(char_table, tmp, salt, hash)
         # print(passwd_char_hash)
-        print(json.dumps(passwd_char_hash))
+        # print(json.dumps(passwd_char_hash))
 
         return passwd_hash, passwd_char_table, passwd_char_hash
 
     def verify_password(self, input_passwd, expected_hash):
         verified = argon2.verify(input_passwd, expected_hash)
         if verified:
-            print("+")
+            # print("+")
             return True
         else:
-            print("-")
+            # print("-")
             return False
 
     def calculate_entropy(self, password):
         stat = {}
         leng = 0
 
-        # Usuwamy białe znaki z hasła
         password = re.sub(r'\s', '', password)
 
         for znak in password:
@@ -74,10 +73,8 @@ class PasswordAlgorithm:
 
         H = 0.0
         for znak in stat:
-            # print("{} <=> {}".format(znak, stat[znak]))
             p_i = stat[znak] / leng
             H -= p_i * math.log2(p_i)
-        # print(H)
         return H
 
     def is_strong_password(self, password):
@@ -87,9 +84,9 @@ class PasswordAlgorithm:
             return False
         if not re.search(r'[a-z]', password):
             return False
-        if not re.search(r'\d', password):
+        if not re.search(r'\d', password):  # number
             return False
-        if not re.search(r'[^a-zA-Z\d]', password):
+        if not re.search(r'[^a-zA-Z\d]', password):     # special
             return False
         if self.calculate_entropy(password) < 3:
             return False
